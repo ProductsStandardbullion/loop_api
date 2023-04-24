@@ -19,10 +19,10 @@ class RealEstateInvestMentController extends Controller
      */
     public function index()
     {
-        $investments = RealEstate::get(['id','title','per_unit','roi','	investment_id']);
+        $investments = RealEstate::get();
         $this->resp['status'] = true;
         $this->resp['data'] = collect($investments);
-        return response()->json([$this->resp], 200);
+        return response()->json($this->resp, 200);
     }
 
     /**
@@ -69,12 +69,22 @@ class RealEstateInvestMentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($investment_id)
+    public function show($id)
     {
-        $investment = RealEstate::where('investment_id', $investment_id)->first();
-        $this->resp['status'] = true;
-        $this->resp['data'] = collect($investment);
-        return response()->json([$this->resp], 200);
+        $investment = RealEstate::where('investment_id', $id)->first();
+        if(empty($investment)){
+            $this->resp['status'] = false;
+            $this->resp['message'] = 'Item not found';
+            return response()->json($this->resp, 404);
+
+        }else{
+            $this->resp['status'] = true;
+            $this->resp['data'] = collect($investment);
+            return response()->json($this->resp,200);
+
+        }
+       
+     
     }
 
     /**
@@ -95,3 +105,4 @@ class RealEstateInvestMentController extends Controller
 
 
 }
+
