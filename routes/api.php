@@ -35,3 +35,11 @@ Route::prefix('v1')->group(function () {
 
 
 });
+
+
+Route::prefix('v1/investments')->middleware('api') ->group(function () {
+    Route::get('/', [\App\Http\Controllers\User\Investements\Real_estate\RealEstateInvestMentController::class, 'index']);
+    Route::post('/invest', [\App\Http\Controllers\User\Investements\Real_estate\RealEstateInvestMentController::class, 'store']);
+    
+});
+

@@ -16,31 +16,28 @@ class DirectDepositController extends Controller
      */
     public function index()
     {
-        $key = rand(8,16);
+        $key = rand(8, 16);
         //Create narration
         $narration = strtolower(auth('sanctum')->user()->first_name . Str::random($key));
 
         $this->resp['status'] = true;
         $this->resp['data'] = $narration;
-        return response()->json([$this->resp], 200);
-     
+        return response()->json($this->resp);
     }
 
-    public function history(){
+    public function history()
+    {
         $loop_id = auth('sanctum')->user()->loop_id;
         $history = DB::table('direct_deposit')->where('loop', $loop_id)->get();
-        if(!empty($history)){
+        if (!empty($history)) {
             $this->resp['status'] = true;
             $this->resp['data'] = collect($history);
-            return response()->json([$this->resp], 200);
-
-        }else{
+            return response()->json($this->resp);
+        } else {
             $this->resp['status'] = false;
             $this->resp['data'] = null;
-            return response()->json([$this->resp], 200);
+            return response()->json($this->resp);
         }
-  
-
     }
 
     /**
@@ -58,27 +55,30 @@ class DirectDepositController extends Controller
     {
         $data = $this->validate($request, [
             'amount' => 'required',
-            'narration' => 'required'
+            'narration' => 'required',
+            'fee' => 'required'
         ]);
-           DB::table('direct_deposit')->insert([
+
+        $amount = $data['amount'] - $data['fee'];
+        DB::table('direct_deposit')->insert([
             'loop_id' => auth('sanctum')->user()->loop_id,
             'narration' => $data['narration'],
-            'amount' => $data['amount'],
+            'amount' => $amount,
             'created_at' => now(),
             'updated_at' => now()
 
-           ]);
+        ]);
 
-           //Send email to support
-           $mailData = [
+        //Send email to support
+        $mailData = [
             'title' => auth('sanctum')->user()->first_name . ', has requested to deposit',
-            'message' => '<p>Hi support, '. auth('sanctum')->user()->first_name .' has requested to make deposit to hos wallet. Kindly look out for the alert. </p>
+            'message' => '<p>Hi support, ' . auth('sanctum')->user()->first_name . ' has requested to make deposit to hos wallet. Kindly look out for the alert. </p>
             <div> <h3>Transaction details</h3>
-            <p>Customer: '. auth('sanctum')->user()->first_name() .' '. auth('sanctum')->user()->last_name() .'</p>
-            <p>Amount: ₦'. number_format($request->amount) .'</p>
-            <p>Narration:'. $request->narration .'</p>
+            <p>Customer: ' . auth('sanctum')->user()->first_name . ' ' . auth('sanctum')->user()->last_name . '</p>
+            <p>Amount: ₦' . number_format($request->amount) . '</p>
+            <p>Narration:' . $request->narration . '</p>
 
-            <p>Current balance:'. number_format(auth('sanctum')->user()->wallet) .'</p>
+            <p>Current balance:' . number_format(auth('sanctum')->user()->wallet) . '</p>
             
             </div>
             '
@@ -91,7 +91,6 @@ class DirectDepositController extends Controller
         $this->resp['message'] = 'Your deposit request has been submitted. Your wallet shall be credited when your deposit is confirmed.';
 
         return response()->json($this->resp);
-           
     }
 
     /**
