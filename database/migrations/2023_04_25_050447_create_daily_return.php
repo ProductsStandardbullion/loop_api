@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('portfolio', function (Blueprint $table) {
+        Schema::create('daily_return', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('loop_id',100);
             $table->string('portfolio_id',100);
-            $table->double('principal')->default(0);
-            $table->double('roi')->default(0);
-            $table->string('investment_id',100);
-            $table->double('returns')->default(0);
-            $table->double('units')->default(0);
+            $table->double('amount')->default(0);
+            $table->boolean('status')->default(1);
             $table->timestamps();
         });
     }
@@ -29,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('portfolio');
+        Schema::dropIfExists('daily_return');
     }
 };

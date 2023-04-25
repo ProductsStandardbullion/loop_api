@@ -9,6 +9,8 @@ use Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+use Illuminate\Support\Facades\Mail;
+
 class RealEstateInvestMentController extends Controller
 {
 
@@ -41,7 +43,6 @@ class RealEstateInvestMentController extends Controller
 
         $validator = Validator::make($request->all(), [
             'investment_id' => 'required|string',
-            'loop_id' => 'required|string',
             'roi' => 'required',
             'principal' => 'required'
         ]);
@@ -53,15 +54,43 @@ class RealEstateInvestMentController extends Controller
             return response()->json([$this->resp], 400);
         }
         $loop_id = auth('sanctum')->user()->loop_id;
-        $data =  DB::table('investments')->insert([
+        $returns = round((($request->roi/$request->maximum_duration)/30)/100, 4);
+     DB::table('portfolio')->insert([
             'loop_id' => $loop_id,
             'roi' => $request->roi,
-            'principal' => $request->amount,
+            'principal' => $request->principal,
             'investment_id' => $request->investment_id,
-            'porfolio_id' =>  strtolower(auth('sanctum')->user()->id . uniqid()) . Str::random(10)
+            'portfolio_id' =>  strtolower(uniqid().auth('sanctum')->user()->id . Str::random(10)),
+            'returns' => $returns,
+            'units' => $request->units,
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
+
+ 
+        
+
+        $investment = DB::table('real_estate')->where('investment_id',$request->investment_id)->first();
         $this->resp['status'] = true;
-        $this->resp['data'] = $data;
+        $this->resp['data'] = $request->all();
+
+     
+        $start =  date('Y-m-d', strtotime($investment->start_date . ' +2 day'));
+        $mailData = [
+            'title' => 'You have invested in '.$investment->investment_id,
+            'project' => $investment->title,
+            'start' => $start,
+            'roi' => $investment->roi,
+            'duration' => $investment->maximum_duration,
+            'name' => auth('sanctum')->user()->first_name . ' '. auth('sanctum')->user()->last_name,
+            'last_name' => auth('sanctum')->user()->last_name,
+            'expected_return' =>  '₦' . number_format(($request->principal * ($investment->roi/100) ) + $request->principal),
+            'amount' => '₦' . number_format($investment->principal),
+            'slots' => $request->units
+
+        ];
+        Mail::to($email_address)->send(new \App\Mail\Email($mailData));
+        
 
         return response()->json($this->resp);
     }
@@ -87,21 +116,7 @@ class RealEstateInvestMentController extends Controller
      
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+   
 
 
 }
