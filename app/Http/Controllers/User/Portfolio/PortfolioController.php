@@ -16,9 +16,25 @@ class PortfolioController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function portfolio()
     {
-        //
+        $loop_id = auth('sanctum')->user()->loop_id;
+
+     
+        $portfolio = Portfolio::where('loop_id', $loop_id)->get();
+        if(empty($portfolio)){
+            $this->resp['status'] = false;
+            $this->resp['error'] = 'You have not made any investment.';
+            return response()->json($this->resp, 200);
+
+        }else{
+            $this->resp['status'] = true;
+            $this->resp['data'] = collect($portfolio);
+            return response()->json($this->resp, 200);
+        }
+      
+
+
     }
 
     /**
@@ -48,7 +64,7 @@ class PortfolioController extends Controller
             return response()->json($this->resp, 401);
 
         }else{
-            die()
+    
             $portfolio = new Portfolio();
             $portfolio->roi = $request->roi;
             $portfolio->principal = $request->total;

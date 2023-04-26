@@ -44,5 +44,7 @@ Route::prefix('v1/investments')->middleware('api') ->group(function () {
     
     Route::post('/invest', [\App\Http\Controllers\User\Investements\Real_estate\RealEstateInvestMentController::class, 'store']);
     
+
+    Route::get('/portfolio/my',[\App\Http\Controllers\User\Portfolio\PortfolioController::class, 'portfolio']);
 });
 

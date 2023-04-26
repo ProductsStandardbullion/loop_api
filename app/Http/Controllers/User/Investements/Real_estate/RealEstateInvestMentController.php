@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\User\Investements\Real_estate;
 
 use App\Http\Controllers\Controller;
@@ -60,7 +59,7 @@ class RealEstateInvestMentController extends Controller
         //check balance
 
 
-        if (auth('sanctum')->user()->wallet > $request->principal) {
+        if (auth('sanctum')->user()->wallet < $request->principal) {
             $this->resp['status'] = false;
             $this->resp['error'] = 'Insufficient balance.';
             return response()->json($this->resp, 400);
@@ -103,8 +102,8 @@ class RealEstateInvestMentController extends Controller
                     'title' => 'You have invested in ' . $investment->investment_id,
                     'project' => $investment->title,
                     'start' => $start,
-                    'roi' => $investment->roi,
-                    'duraration' => $investment->maximum_duration,
+                    'roi' => $investment->roi .'%' ,
+                    'duraration' => $investment->maximum_duration .' months',
                     'name' => auth('sanctum')->user()->first_name . ' ' . auth('sanctum')->user()->last_name,
                     'last_name' => auth('sanctum')->user()->last_name,
                     'expected_return' =>  '₦' . number_format(($request->principal * ($investment->roi / 100)) + $request->principal),
