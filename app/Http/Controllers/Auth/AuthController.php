@@ -15,6 +15,20 @@ class AuthController extends Controller
 {
     public $resp = [];
 
+ 
+function generateReferralCode() {
+    $referralCode = strtolower(Str::random(8)); // Generate a random 8-character code
+
+    // Check if the code already exists
+    $userWithCode = User::where('referral_code', $referralCode)->first();
+    if ($userWithCode) {
+        // If it does, generate another code recursively
+        return generateReferralCode();
+    }
+
+    return $referralCode;
+}
+
     public function send_verification_email($email_address, $loop_id,$first_name)
     {
 
@@ -65,6 +79,7 @@ class AuthController extends Controller
         $user->last_name = trim(ucfirst($request->last_name));
         $user->email = trim(strtolower($request->email));
         $user->phone = trim($request->phone);
+        $user->referral_code = generateReferralCode();
         $user->password = Hash::make($request->password, [
             'memory' => 1024,
             'time' => 2,
@@ -122,6 +137,16 @@ class AuthController extends Controller
         ];
         $this->resp['status'] = true;
         $this->resp['data'] = $response;
+        return response()->json($this->resp);
+    }
+
+
+
+
+    public function userObject(){
+        $data = User::find(auth('sanctum')->user()->id);
+        $this->resp['status'] = true;
+        $this->resp['data'] = collect($data);
         return response()->json($this->resp);
     }
 }

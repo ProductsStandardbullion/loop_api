@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('land_title',150)->nullable();
             $table->json('gallery')->nullable();
             $table->string('investment_id')->nullable();
-            $table->string('video_link')->nullable();
+            $table->text('video_link')->nullable();
             $table->integer('total_units_available')->default(0);
             $table->text('about')->nullable();
             $table->string('minimum_duration',100)->nullable();

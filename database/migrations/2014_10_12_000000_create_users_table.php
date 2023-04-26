@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('first_name',100);
             $table->string('last_name',100);
             $table->string('phone',16);
+            $table->double('investment')->default(0);
+            $table->double('referral')->default(0);
+            $table->string('referral_code',20)->nullable();
 
             $table->string('email',72)->unique();
             $table->timestamp('email_verified_at')->nullable();

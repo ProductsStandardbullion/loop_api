@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 
 use Illuminate\Support\Facades\Mail;
 
+use Illuminate\Support\Facades\Log;
+
 class RealEstateInvestMentController extends Controller
 {
 
@@ -54,45 +56,76 @@ class RealEstateInvestMentController extends Controller
             return response()->json([$this->resp], 400);
         }
         $loop_id = auth('sanctum')->user()->loop_id;
-        $returns = round((($request->roi/$request->maximum_duration)/30)/100, 4);
-     DB::table('portfolio')->insert([
-            'loop_id' => $loop_id,
-            'roi' => $request->roi,
-            'principal' => $request->principal,
-            'investment_id' => $request->investment_id,
-            'portfolio_id' =>  strtolower(uniqid().auth('sanctum')->user()->id . Str::random(10)),
-            'returns' => $returns,
-            'units' => $request->units,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
 
- 
-        
+        //check balance
 
-        $investment = DB::table('real_estate')->where('investment_id',$request->investment_id)->first();
-        $this->resp['status'] = true;
-        $this->resp['data'] = $request->all();
 
-     
-        $start =  date('Y-m-d', strtotime($investment->start_date . ' +2 day'));
-        $mailData = [
-            'title' => 'You have invested in '.$investment->investment_id,
-            'project' => $investment->title,
-            'start' => $start,
-            'roi' => $investment->roi,
-            'duration' => $investment->maximum_duration,
-            'name' => auth('sanctum')->user()->first_name . ' '. auth('sanctum')->user()->last_name,
-            'last_name' => auth('sanctum')->user()->last_name,
-            'expected_return' =>  '₦' . number_format(($request->principal * ($investment->roi/100) ) + $request->principal),
-            'amount' => '₦' . number_format($investment->principal),
-            'slots' => $request->units
+        if (auth('sanctum')->user()->wallet > $request->principal) {
+            $this->resp['status'] = false;
+            $this->resp['error'] = 'Insufficient balance.';
+            return response()->json($this->resp, 400);
+        } else {
 
-        ];
-        Mail::to($email_address)->send(new \App\Mail\Email($mailData));
-        
+            try {
+                //code...
 
-        return response()->json($this->resp);
+
+
+                $investment = DB::table('real_estate')->where('investment_id', $request->investment_id)->first();
+
+                $returns = round((($request->roi / $investment->maximum_duration) / 30) / 100, 4);
+                $portfolio_id =  strtolower(uniqid() . auth('sanctum')->user()->id . Str::random(10));
+
+                DB::table('portfolio')->insert([
+                    'loop_id' => $loop_id,
+                    'roi' => $request->roi,
+                    'principal' => $request->principal,
+                    'investment_id' => $request->investment_id,
+                    'portfolio_id' => $portfolio_id,
+                    'returns' => $returns,
+                    'units' => $request->units,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+
+
+
+                $this->resp['status'] = true;
+                $this->resp['data'] = $request->all();
+                $email_address = DB::table('users')->where('loop_id', $loop_id)->first()->email;
+
+                DB::table('users')->where('id', auth('sanctum')->user()->id)->decrement('wallet', $request->principal);
+                DB::table('real_estate')->where('investment_id', $request->investment_id)->decrement('total_units_available', $request->units);
+                DB::table('real_estate')->where('investment_id', $request->investment_id)->increment('participants', $request->units);
+                $start =  date('Y-m-d', strtotime($investment->start_date . ' +2 day'));
+                $mailData = [
+                    'title' => 'You have invested in ' . $investment->investment_id,
+                    'project' => $investment->title,
+                    'start' => $start,
+                    'roi' => $investment->roi,
+                    'duraration' => $investment->maximum_duration,
+                    'name' => auth('sanctum')->user()->first_name . ' ' . auth('sanctum')->user()->last_name,
+                    'last_name' => auth('sanctum')->user()->last_name,
+                    'expected_return' =>  '₦' . number_format(($request->principal * ($investment->roi / 100)) + $request->principal),
+                    'amount' => '₦' . number_format($request->principal),
+                    'slots' => $request->units,
+                    'investment_id' => $portfolio_id,
+                    'end' =>  date('Y-m-d', strtotime($investment->start_date  . ' +' . $investment->maximum_duration . ' months'))
+
+                ];
+                Mail::to($email_address)->send(new \App\Mail\Buy($mailData));
+            } catch (\Throwable $th) {
+                Log::info($th->getMessage());
+            }
+
+
+
+
+
+
+            return response()->json($this->resp);
+        }
     }
 
     /**
@@ -101,23 +134,14 @@ class RealEstateInvestMentController extends Controller
     public function show($id)
     {
         $investment = RealEstate::where('investment_id', $id)->first();
-        if(empty($investment)){
+        if (empty($investment)) {
             $this->resp['status'] = false;
             $this->resp['message'] = 'Item not found';
             return response()->json($this->resp, 404);
-
-        }else{
+        } else {
             $this->resp['status'] = true;
             $this->resp['data'] = collect($investment);
-            return response()->json($this->resp,200);
-
+            return response()->json($this->resp, 200);
         }
-       
-     
     }
-
-   
-
-
 }
-
