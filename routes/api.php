@@ -48,3 +48,10 @@ Route::prefix('v1/investments')->middleware('api') ->group(function () {
     Route::get('/portfolio/my',[\App\Http\Controllers\User\Portfolio\PortfolioController::class, 'portfolio']);
 });
 
+
+Route::prefix('v1/bank/details/')->middleware('api') ->group(function () {
+    Route::get('',[\App\Http\Controllers\User\Bank\BankDetailsController::class,'index']);
+    Route::get('store',[\App\Http\Controllers\User\Bank\BankDetailsController::class,'store']);
+
+
+});
