@@ -11,25 +11,16 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
+use Illuminate\Support\Facades\Log;
+
 class AuthController extends Controller
 {
     public $resp = [];
 
- 
-function generateReferralCode() {
-    $referralCode = strtolower(Str::random(8)); // Generate a random 8-character code
 
-    // Check if the code already exists
-    $userWithCode = User::where('referral_code', $referralCode)->first();
-    if ($userWithCode) {
-        // If it does, generate another code recursively
-        return generateReferralCode();
-    }
 
-    return $referralCode;
-}
 
-    public function send_verification_email($email_address, $loop_id,$first_name)
+    public function send_verification_email($email_address, $loop_id, $first_name)
     {
 
         DB::table('verification_code')->where('loop_id', $loop_id)->delete();
@@ -72,27 +63,43 @@ function generateReferralCode() {
         }
         $loop_id = Str::uuid();
 
+        $df = abs(strlen($request->referred_by) - 8);
 
-        //Create new user
-        $user = new User();
-        $user->first_name = trim(ucfirst($request->first_name));
-        $user->last_name = trim(ucfirst($request->last_name));
-        $user->email = trim(strtolower($request->email));
-        $user->phone = trim($request->phone);
-        $user->referral_code = generateReferralCode();
-        $user->password = Hash::make($request->password, [
-            'memory' => 1024,
-            'time' => 2,
-            'threads' => 2,
-        ]);
-        $user->loop_id = $loop_id;
-        $user->save();
+        $ref = substr($request->referred_by, 0, $df);
+        if (strlen($ref) > 0) {
+
+            //Create new user
+            $user = new User();
+            $user->first_name = trim(ucfirst($request->first_name));
+            $user->last_name = trim(ucfirst($request->last_name));
+            $user->email = trim(strtolower($request->email));
+            $user->phone = trim($request->phone);
+            $user->referral_code = null;
+            $user->referred_by = $ref ?? null;
+            $user->password = Hash::make($request->password, ['memory' => 1024, 'time' => 2, 'threads' => 2,]);
+            $user->loop_id = $loop_id;
+            $user->save();
+        } else {
+            //Create new user
+            $user = new User();
+            $user->first_name = trim(ucfirst($request->first_name));
+            $user->last_name = trim(ucfirst($request->last_name));
+            $user->email = trim(strtolower($request->email));
+            $user->phone = trim($request->phone);
+            $user->referral_code = null;
+            $user->password = Hash::make($request->password, ['memory' => 1024, 'time' => 2, 'threads' => 2,]);
+            $user->loop_id = $loop_id;
+            $user->save();
+        }
+
+
+
         $data['loop_id'] = $loop_id;
-        $data['user']= $request->all();
+        $data['user'] = $request->all();
         //Trigger email
-        $this->send_verification_email($request->email,$loop_id,trim(ucfirst($request->first_name)));
+        //$this->send_verification_email($request->email, $loop_id, trim(ucfirst($request->first_name)));
         $this->resp['status'] = true;
-        $this->resp['data']= $data;
+        $this->resp['data'] = $data;
         $this->resp['message'] = 'Your account is almost ready. Use the code that was sent to your email address to verify your account.';
         return response()->json($this->resp, 201);
     }
@@ -106,7 +113,7 @@ function generateReferralCode() {
         ]);
         //check user email
         $user = User::where('email', $field['email'])->first();
-      
+
 
         //check if account exists
         if (empty($user)) {
@@ -143,7 +150,8 @@ function generateReferralCode() {
 
 
 
-    public function userObject(){
+    public function userObject()
+    {
         $data = User::find(auth('sanctum')->user()->id);
         $this->resp['status'] = true;
         $this->resp['data'] = collect($data);

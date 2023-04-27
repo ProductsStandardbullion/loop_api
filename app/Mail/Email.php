@@ -38,7 +38,7 @@ class Email extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'mail.email',
+            view: 'emails.email',
         );
     }
 
