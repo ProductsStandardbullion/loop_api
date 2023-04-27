@@ -91,7 +91,7 @@
             <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px;" >
                 <tr>
                     <td align="center" valign="top" style="padding: 40px 10px 40p 10px;">
-                        <a href="http://litmus.com" target="_blank">
+                        <a href="#" target="_blank">
                             <img alt="Logo" src="https://res.cloudinary.com/da6yqed0z/image/upload/v1682001258/20230420_151715_0000_eyhgmk.png" width="120" height="40" style="display: block; width: 140px; max-width: 140px; min-width: 140px; font-family: 'Lato', Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0">
                         </a>
                     </td>
