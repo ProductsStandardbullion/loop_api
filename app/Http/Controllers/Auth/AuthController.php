@@ -23,22 +23,22 @@ class AuthController extends Controller
     public function send_verification_email($email_address, $loop_id, $first_name)
     {
 
-        DB::table('verification_code')->where('loop_id', $loop_id)->delete();
-        $code = strtoupper(Str::random(6));
-        $current_time = time();
-        $future_time = $current_time + (15 * 60);
-        $future_time_formatted = date('Y-m-d H:i:s', $future_time);
-        DB::table('verification_code')->insert([
-            'loop_id' => $loop_id,
-            'expires_at' => $future_time_formatted,
-            'code' => $code,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        // DB::table('verification_code')->where('loop_id', $loop_id)->delete();
+        // $code = strtoupper(Str::random(6));
+        // $current_time = time();
+        // $future_time = $current_time + (15 * 60);
+        // $future_time_formatted = date('Y-m-d H:i:s', $future_time);
+        // DB::table('verification_code')->insert([
+        //     'loop_id' => $loop_id,
+        //     'expires_at' => $future_time_formatted,
+        //     'code' => $code,
+        //     'created_at' => now(),
+        //     'updated_at' => now(),
+        // ]);
 
         $mailData = [
-            'title' => $first_name . ', here is your ' . env('app.name') . ' verification code',
-            'code' => $code
+            'title' => $first_name . ', here is your ' . env('app.name') . ' verification link',
+            'code' => route('verify.account',['id' => $loop_id])
         ];
 
         //Mail::to($email_address)->send(new Email($mailData));
@@ -156,5 +156,14 @@ class AuthController extends Controller
         $this->resp['status'] = true;
         $this->resp['data'] = collect($data);
         return response()->json($this->resp);
+    }
+
+
+
+
+    public function verify($id){
+        DB::table('users')->where('loop_id', $id)->update(['email_verified_at' => now(), 'updated_at','verified' => 1]);
+        return redirect('https://www.app.loopoptions.com/')->with('success', 'Congratulations, your account has been verified.');
+
     }
 }

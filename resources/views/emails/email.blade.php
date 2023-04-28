@@ -138,7 +138,7 @@
               <!-- COPY -->
               <tr>
                 <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Lato', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;" >
-                  <p style="margin: 0;">We're excited to have you get started. First, you need to verify your account. Use the code below to verify your account.</p>
+                  <p style="margin: 0;">We're excited to have you get started. First, you need to verify your account. Click the link below to verify your account.</p>
                 </td>
               </tr>
               <!-- BULLETPROOF BUTTON -->
@@ -150,7 +150,7 @@
                         <table border="0" cellspacing="0" cellpadding="0">
                           <tr>
                               <td align="center" style="border-radius: 3px;">
-                                  <h1><b>{{ $mailData['code'] }}</b> </h1>
+                                  <a href="{{ $mailData['code'] }}">{{ $mailData['code'] }}</a>
                               </td>
                           </tr>
                         </table>

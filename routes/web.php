@@ -34,3 +34,15 @@ Route::prefix('hq/dashboard')->middleware(['auth','isAdmin']) ->group(function (
     Route::get('investments/realestate/{id}', [\App\Http\Controllers\Admin\hq\Investments\RealestateInvestmentController::class, 'destroy'])->name('hq.investment.realestate.destroy');
 
 });
+
+
+Route::prefix('verify/account/')->group(function () {
+Route::get('402e2fc8-b270-45f3-91dc-54e23aa69454/{id}',[\App\Http\Controllers\Auth\AuthController::class, 'verify'])->name('verify.account');
+});
+
+
+
+
+
+
+
