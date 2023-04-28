@@ -21,7 +21,7 @@ class PortfolioController extends Controller
         $loop_id = auth('sanctum')->user()->loop_id;
 
      
-        $portfolio = Portfolio::where('loop_id', $loop_id)->get();
+        $portfolio = Portfolio::where('loop_id', $loop_id)->where('status',1)->get();
         if(empty($portfolio)){
             $this->resp['status'] = false;
             $this->resp['error'] = 'You have not made any investment.';
