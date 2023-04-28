@@ -30,7 +30,7 @@ class DailyReturns extends Command
     {
         $counter = 0;
         $total_sum = 0;
-        $data = DB::table('portfolio')->where('status',1)->get(['loop_id','principal','returns']);
+        $data = DB::table('portfolio')->where('status',1)->get(['loop_id','principal','returns','portfolio_id']);
         DB::beginTransaction();
         foreach ($data as $key => $value) {
             $daily_returns =  doubleval($value->returns * $value->principal);
@@ -41,6 +41,7 @@ class DailyReturns extends Command
                 'loop_id' => $value->loop_id,
                 'amount' => $daily_returns,
                 'type' => 'Credit',
+                'portfolio_id' => $value->portfolio_id,
                 'transaction_id' => strtolower(uniqid()),
                 'created_at' => now(),
                 'updated_at' => now()

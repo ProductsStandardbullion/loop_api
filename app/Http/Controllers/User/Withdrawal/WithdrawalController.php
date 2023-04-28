@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Withdrawal;
 use Validator;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 
 class WithdrawalController extends Controller
 {
@@ -44,6 +45,15 @@ class WithdrawalController extends Controller
             $this->resp['error'] = $validator->errors();
             return response()->json($this->resp, 400);
         }else{
+
+            $principal = DB::table('portfolio')->where('loop_id',auth('sanctum')->user()->loop_id)->where('portfolio_id',$request->portfolio)->first('principal');
+            $returns = DB::table('daily_returns')->where('loop_id',auth('sanctum')->user()->loop_id)->where('portfolio_id',$request->portfolio)
+
+
+
+
+
+
             $withdraw = new Withdrawal();
             $withdraw->portfolio_id = $request->portfolio_id;
             $withdraw->loop_id = auth('sanctum')->user()->loop_id;

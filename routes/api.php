@@ -55,3 +55,7 @@ Route::prefix('v1/bank/details/')->middleware('api') ->group(function () {
 
 
 });
+
+Route::prefix('v1/withdraw/')->middleware('api') ->group(function () {
+    Route::post('',[\App\Http\Controllers\User\Withdrawal\WithdrawalController::class, 'store']);
+});

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->double('amount');
             $table->string('type',20);
             $table->string('transaction_id',50);
+            $table->string('portfolio_id',50);
             $table->timestamps();
         });
     }
