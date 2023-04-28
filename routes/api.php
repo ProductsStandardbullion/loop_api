@@ -51,7 +51,7 @@ Route::prefix('v1/investments')->middleware('api') ->group(function () {
 
 Route::prefix('v1/bank/details/')->middleware('api') ->group(function () {
     Route::get('',[\App\Http\Controllers\User\Bank\BankDetailsController::class,'index']);
-    Route::get('store',[\App\Http\Controllers\User\Bank\BankDetailsController::class,'store']);
+    Route::post('store',[\App\Http\Controllers\User\Bank\BankDetailsController::class,'store']);
 
 
 });

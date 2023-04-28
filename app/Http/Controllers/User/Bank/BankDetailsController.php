@@ -14,10 +14,19 @@ class BankDetailsController extends Controller
 
 
     public function index(){
-        $data =    DB::table('bank_details')->where('loop_id', auth('sanctum')->user()->loop_id)->first();
-        $this->resp['status'] = true;
-        $this->resp['data'] = $data;
-        return response()->json($this->resp);
+        $data =    DB::table('bank_details')->where('loop_id', auth('sanctum')->user()->loop_id)->first(['bank','account_name','account_number']);
+        if(empty($data)){
+            $this->resp['status'] =false;
+            $this->resp['message'] = 'No bank details found. Kindly save your details.';
+            return response()->json($this->resp,404);
+
+        }else{
+            $this->resp['status'] =true;
+            $this->resp['data'] = $data;
+            return response()->json($this->resp,200);
+        }
+      
+       
     }
 
 
@@ -33,7 +42,9 @@ class BankDetailsController extends Controller
             'bank' => ucwords($request->bank),
             'account_name' => $request->account_name,
             'account_number' => $request->account_number,
-            'loop_id' => session('user')->get('loop_id')
+            'loop_id' => auth('sanctum')->user()->loop_id,
+            'created_at' => now(),
+            'updated_at' => now()
 
         ]);
         $this->resp['status'] = true;
