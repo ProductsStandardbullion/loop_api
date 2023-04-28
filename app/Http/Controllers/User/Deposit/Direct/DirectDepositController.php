@@ -72,7 +72,7 @@ class DirectDepositController extends Controller
         //Send email to support
         $mailData = [
             'title' => auth('sanctum')->user()->first_name . ', has requested to deposit',
-            'message' => '<p>Hi support, ' . auth('sanctum')->user()->first_name . ' has requested to make deposit to hos wallet. Kindly look out for the alert. </p>
+            'message' => '<p>Hi support, ' . auth('sanctum')->user()->first_name . ' has requested to make deposit to his wallet. Kindly look out for the alert. </p>
             <div> <h3>Transaction details</h3>
             <p>Customer: ' . auth('sanctum')->user()->first_name . ' ' . auth('sanctum')->user()->last_name . '</p>
             <p>Amount: ₦' . number_format($request->amount) . '</p>
