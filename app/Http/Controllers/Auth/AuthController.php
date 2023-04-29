@@ -97,7 +97,7 @@ class AuthController extends Controller
         $data['loop_id'] = $loop_id;
         $data['user'] = $request->all();
         //Trigger email
-        //$this->send_verification_email($request->email, $loop_id, trim(ucfirst($request->first_name)));
+        $this->send_verification_email($request->email, $loop_id, trim(ucfirst($request->first_name)));
         $this->resp['status'] = true;
         $this->resp['data'] = $data;
         $this->resp['message'] = 'Your account is almost ready. Use the code that was sent to your email address to verify your account.';
@@ -162,8 +162,8 @@ class AuthController extends Controller
 
 
     public function verify($id){
-        DB::table('users')->where('loop_id', $id)->update(['email_verified_at' => now(), 'updated_at','verified' => 1]);
-        return redirect('https://www.app.loopoptions.com/')->with('success', 'Congratulations, your account has been verified.');
-
+        // DB::table('users')->where('loop_id', $id)->update(['email_verified_at' => now(), 'updated_at' => now(),'verified' => 1]);
+        // return redirect('https://www.app.loopoptions.com/')->with('success', 'Congratulations, your account has been verified.');
+return view('verify');
     }
 }

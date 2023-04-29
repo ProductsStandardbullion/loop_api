@@ -99,7 +99,7 @@ class RealEstateInvestMentController extends Controller
                 DB::table('real_estate')->where('investment_id', $request->investment_id)->increment('participants', $request->units);
                 $start =  date('Y-m-d', strtotime($investment->start_date . ' +2 day'));
                 $mailData = [
-                    'title' => 'You have invested in ' . $investment->investment_id,
+                    'title' => 'You have invested in ' . $investment->investment->title,
                     'project' => $investment->title,
                     'start' => $start,
                     'roi' => $investment->roi .'%' ,
